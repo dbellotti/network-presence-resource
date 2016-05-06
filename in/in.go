@@ -6,27 +6,29 @@ import (
 	"os"
 )
 
-type Payload struct {
-	Versions []string   `json:"version"`
-	MetaData []MetaData `json:"metadata"`
+type HWAddrs struct {
+	MACs []string `json:"macs"`
 }
 
-type MetaData struct {
-	Name string `json:"name"`
-	MAC  string `json:"mac"`
+type Payload struct {
+	Version  HWAddrs `json:"version"`
+	MetaData HWAddrs `json:"metadata"`
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		println("usage: " + os.Args[0] + " <destination>")
+		os.Exit(1)
+	}
+
 	payload := &Payload{}
-	err := json.Unmarshal([]byte(os.Args[1]), payload)
+	err := json.Unmarshal([]byte(os.Args[2]), payload)
 	if err != nil {
 		log.Fatalf("error unmarshalling payload: %s", err)
 	}
 
-	payload.MetaData = []MetaData{
-		{Name: "Michael", MAC: "SO:ME:MA:C1"},
-		{Name: "David", MAC: "SO:ME:MA:C2"},
-		{Name: "Gabe", MAC: "SO:ME:MA:C3"},
+	for _, mac := range payload.Version.MACs {
+		payload.MetaData.MACs = append(payload.MetaData.MACs, mac)
 	}
 
 	jsonResp, err := json.Marshal(payload)

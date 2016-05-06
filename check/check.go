@@ -13,29 +13,38 @@ import (
 
 var IPs = []string{"192.168.96.184", "192.168.96.59", "192.168.96.205"}
 
+type HWAddrs struct {
+	MACs []string `json:"macs"`
+}
+
 type Payload struct {
-	Devices []string `json:"version"`
+	Version HWAddrs `json:"version"`
 }
 
 func main() {
+	if len(os.Args) < 1 {
+		println("usage: " + os.Args[0] + " <destination>")
+		os.Exit(1)
+	}
+
 	payload := &Payload{}
 	err := json.Unmarshal([]byte(os.Args[1]), payload)
 	if err != nil {
 		log.Fatalf("error unmarshalling payload: %s", err)
 	}
 
-	fmt.Printf("-- previous state --\n%v\n\n", payload.Devices)
+	fmt.Printf("-- previous state --\n%v\n\n", payload.Version)
 
 	currentDevices := getCurrentState()
 
 	fmt.Printf("-- current state --\n%v\n\n", currentDevices)
 
-	if reflect.DeepEqual(payload.Devices, currentDevices) {
-		writeVersions([][]string{payload.Devices})
+	if reflect.DeepEqual(payload.Version.MACs, currentDevices) {
+		writeVersions([][]string{payload.Version.MACs})
 		return
 	}
 
-	writeVersions([][]string{payload.Devices, currentDevices})
+	writeVersions([][]string{payload.Version.MACs, currentDevices})
 }
 
 func getCurrentState() []string {
