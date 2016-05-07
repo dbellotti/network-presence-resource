@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -eux
+
+VERSION="${VERSION:-dev}"
+GOOS="${GOOS:-linux}"
+
+base_dir="$( dirname "${0}" )"
+
+pushd "${base_dir}" > /dev/null
+  GOOS="${GOOS}" go build \
+      -o "${base_dir}/check/check" \
+      -ldflags "-X main.version=${VERSION}" \
+      ./check/check.go
+  GOOS="${GOOS}" go build \
+      -o "${base_dir}/in/in" \
+      -ldflags "-X main.version=${VERSION}" \
+      ./in/in.go
+  GOOS="${GOOS}" go build \
+      -o "${base_dir}/out/out" \
+      -ldflags "-X main.version=${VERSION}" \
+      ./out/out.go
+popd > /dev/null<Paste>
